@@ -2,6 +2,7 @@ package com.carloser7.reimoneyapi.reimoneyapi.resource;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,19 +25,20 @@ public class CategoriaResource {
   
   @Autowired
   private CategoriaRepository categoriaRepository;
+private Optional<Categoria> findById;
 
   @GetMapping
   public ResponseEntity<?> listar() {
-     List<Categoria> categorias = categoriaRepository.findAll();
+     final List<Categoria> categorias = categoriaRepository.findAll();
     return ResponseEntity.ok(categorias);
   }
 
   @PostMapping
-  public ResponseEntity<Categoria> criar(@RequestBody Categoria categoria, HttpServletResponse response) {
+  public ResponseEntity<Categoria> criar(@RequestBody final Categoria categoria, final HttpServletResponse response) {
     
-    Categoria categoriaSalva = categoriaRepository.save(categoria);
+    final Categoria categoriaSalva = categoriaRepository.save(categoria);
 
-    URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
+    final URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
       .path("/{codigo}")
       .buildAndExpand(categoriaSalva.getCodigo())
       .toUri();
@@ -45,7 +47,8 @@ public class CategoriaResource {
   }
 
   @GetMapping("/{codigo}")
-  public Categoria buscaPeloCodigo(@PathVariable Long codigo)  {
-    return this.categoriaRepository.findById(codigo).orElse(null);
+  public ResponseEntity<Categoria> buscaPeloCodigo(@PathVariable final Long codigo)  {
+    Optional<Categoria> findById = this.categoriaRepository.findById(codigo);
+    return findById.isPresent() ? ResponseEntity.ok(findById.get()) : ResponseEntity.notFound().build();
   }
 }

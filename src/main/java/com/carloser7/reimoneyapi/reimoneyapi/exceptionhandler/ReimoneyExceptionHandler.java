@@ -51,12 +51,7 @@ public class ReimoneyExceptionHandler extends ResponseEntityExceptionHandler{
       String mensagemUsuario = messageSource.getMessage(field, LocaleContextHolder.getLocale());
       String mensagemDesenvolvedor = field.toString();      
       erros.add(new Erro(mensagemUsuario, mensagemDesenvolvedor));
-    }
-
-    
-    
-
-
+    }    
     return erros;
   }
 

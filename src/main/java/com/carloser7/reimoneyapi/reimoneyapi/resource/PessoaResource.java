@@ -7,10 +7,13 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.carloser7.reimoneyapi.reimoneyapi.event.RecursoCriadoEvent;
 import com.carloser7.reimoneyapi.reimoneyapi.model.Pessoa;
 import com.carloser7.reimoneyapi.reimoneyapi.repository.PessoaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,26 +30,24 @@ public class PessoaResource {
   @Autowired
   private PessoaRepository pessoaRepository;
 
+  @Autowired
+  private ApplicationEventPublisher publisher;
+
   @GetMapping
   public ResponseEntity<?> listar() {
-    final List<Pessoa> pessoas = this.pessoaRepository.findAll();
+    List<Pessoa> pessoas = this.pessoaRepository.findAll();
     return ResponseEntity.ok(pessoas);
   }
 
   @PostMapping
-  public ResponseEntity<Pessoa> criar(@Valid @RequestBody final Pessoa pessoa, final HttpServletResponse response) {
-    final Pessoa pessoaSalva = this.pessoaRepository.save(pessoa);
-
-    final URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-      .path("/{codigo}")
-      .buildAndExpand(pessoaSalva.getCodigo())
-      .toUri();
-
-    return ResponseEntity.created(uri).body(pessoaSalva);
+  public ResponseEntity<Pessoa> criar(@Valid @RequestBody Pessoa pessoa, HttpServletResponse response) {
+    Pessoa pessoaSalva = this.pessoaRepository.save(pessoa);
+    publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
+    return ResponseEntity.status(HttpStatus.CREATED).body(pessoaSalva);
   }
 
   @GetMapping("/{codigo}")
-  public ResponseEntity<Pessoa> buscaPeloCodigo(@PathVariable final Long codigo) {
+  public ResponseEntity<Pessoa> buscaPeloCodigo(@PathVariable Long codigo) {
     Optional<Pessoa> findById = this.pessoaRepository.findById(codigo);
     return findById.isPresent() ? ResponseEntity.ok(findById.get()) : ResponseEntity.notFound().build();
   }

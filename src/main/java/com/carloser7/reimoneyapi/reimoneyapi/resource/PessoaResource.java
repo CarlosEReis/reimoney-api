@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import com.carloser7.reimoneyapi.reimoneyapi.event.RecursoCriadoEvent;
 import com.carloser7.reimoneyapi.reimoneyapi.model.Pessoa;
 import com.carloser7.reimoneyapi.reimoneyapi.repository.PessoaRepository;
+import com.carloser7.reimoneyapi.reimoneyapi.service.PessoaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,6 +31,9 @@ public class PessoaResource {
   
   @Autowired
   private PessoaRepository pessoaRepository;
+
+  @Autowired
+  private PessoaService pessoaService;
 
   @Autowired
   private ApplicationEventPublisher publisher;
@@ -50,6 +55,12 @@ public class PessoaResource {
   public ResponseEntity<Pessoa> buscaPeloCodigo(@PathVariable Long codigo) {
     Optional<Pessoa> findById = this.pessoaRepository.findById(codigo);
     return findById.isPresent() ? ResponseEntity.ok(findById.get()) : ResponseEntity.notFound().build();
+  }
+
+  @PutMapping("/{codigo}")
+  public ResponseEntity<Pessoa> atualiza(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
+    Pessoa pessoaSalva = this.pessoaService.atualiza(codigo, pessoa);
+    return ResponseEntity.ok(pessoaSalva);
   }
 
   @DeleteMapping("/{codigo}")

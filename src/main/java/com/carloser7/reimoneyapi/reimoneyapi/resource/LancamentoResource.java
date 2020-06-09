@@ -11,6 +11,7 @@ import com.carloser7.reimoneyapi.reimoneyapi.event.RecursoCriadoEvent;
 import com.carloser7.reimoneyapi.reimoneyapi.exceptionhandler.ReimoneyExceptionHandler.Erro;
 import com.carloser7.reimoneyapi.reimoneyapi.model.Lancamento;
 import com.carloser7.reimoneyapi.reimoneyapi.repository.LancamentoRepository;
+import com.carloser7.reimoneyapi.reimoneyapi.repository.filter.LancamentoFilter;
 import com.carloser7.reimoneyapi.reimoneyapi.service.LancamentoService;
 import com.carloser7.reimoneyapi.reimoneyapi.service.exception.PessoaInexistenteOuInativaException;
 
@@ -52,8 +53,8 @@ public class LancamentoResource {
   }
 
   @GetMapping
-  public ResponseEntity<?> listar() {
-    List<Lancamento> lancamentos = this.lancamentoRepository.findAll();
+  public ResponseEntity<?> pesquisa(LancamentoFilter lancamentoFilter) {
+    List<Lancamento> lancamentos = this.lancamentoRepository.filtrar(lancamentoFilter);
     return ResponseEntity.ok(lancamentos);
   }
 

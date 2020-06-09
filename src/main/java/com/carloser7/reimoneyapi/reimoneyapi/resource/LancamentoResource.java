@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,9 +63,8 @@ public class LancamentoResource {
   }
 
   @GetMapping
-  public ResponseEntity<?> pesquisa(LancamentoFilter lancamentoFilter) {
-    List<Lancamento> lancamentos = this.lancamentoRepository.filtrar(lancamentoFilter);
-    return ResponseEntity.ok(lancamentos);
+  public Page<Lancamento> pesquisa(LancamentoFilter lancamentoFilter, Pageable pageable) {
+    return this.lancamentoRepository.filtrar(lancamentoFilter, pageable);
   }
 
   @GetMapping("/{codigo}")

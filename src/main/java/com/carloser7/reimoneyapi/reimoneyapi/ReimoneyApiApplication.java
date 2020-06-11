@@ -9,5 +9,5 @@ public class ReimoneyApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ReimoneyApiApplication.class, args);
 	}
-	// ENTENDENDO O FLUXO BÁSICO DO OAUTH
+
 }

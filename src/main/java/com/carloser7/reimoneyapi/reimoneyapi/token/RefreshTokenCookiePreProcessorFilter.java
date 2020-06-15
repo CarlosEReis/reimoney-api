@@ -2,6 +2,7 @@ package com.carloser7.reimoneyapi.reimoneyapi.token;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -31,12 +32,13 @@ public class RefreshTokenCookiePreProcessorFilter implements Filter {
         && "refresh_token".equals(req.getParameter("grant_type"))
         && req.getCookies() != null) {
            
-          for (Cookie cookie : req.getCookies()) {
-            if (cookie.getName().equals("refreshToken")) {
-              String refreshToken = cookie.getValue();
-              req = new MyServletRequestWrapper(req, refreshToken);
-            }
-          }
+          String refreshToken = Stream.of(req.getCookies())
+          .filter(cookie -> "refreshToken".equals(cookie.getName()))
+          .findFirst()
+          .map(cookie -> cookie.getValue())
+          .orElse(null);            
+          
+          req = new MyServletRequestWrapper(req, refreshToken);
       }
 
       chain.doFilter(req, response);

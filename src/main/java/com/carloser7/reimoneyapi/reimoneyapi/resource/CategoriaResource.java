@@ -32,7 +32,7 @@ public class CategoriaResource {
   private ApplicationEventPublisher publisher;
 
   @GetMapping
-  public ResponseEntity<?> listar() {
+  public ResponseEntity<List<Categoria>> listar() {
      List<Categoria> categorias = categoriaRepository.findAll();
     return ResponseEntity.ok(categorias);
   }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,12 +40,14 @@ public class PessoaResource {
   private ApplicationEventPublisher publisher;
 
   @GetMapping
-  public ResponseEntity<?> listar() {
+  @PreAuthorize("hasAuthority('ROLE_PESQUISAR_PESSOA') and #oauth2.hasScope('read')")
+  public ResponseEntity<List<Pessoa>> listar() {
     List<Pessoa> pessoas = this.pessoaRepository.findAll();
     return ResponseEntity.ok(pessoas);
   }
 
   @PostMapping
+  @PreAuthorize("hasAuthority('ROLE_CADASTRA_PESSOA') and #oauth2.hasScope('write')")
   public ResponseEntity<Pessoa> criar(@Valid @RequestBody Pessoa pessoa, HttpServletResponse response) {
     Pessoa pessoaSalva = this.pessoaRepository.save(pessoa);
     publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
@@ -52,23 +55,27 @@ public class PessoaResource {
   }
 
   @GetMapping("/{codigo}")
+  @PreAuthorize("hasAuthority('ROLE_PESQUISAR_PESSOA') and #oauth2.hasScope('read')")
   public ResponseEntity<Pessoa> buscaPeloCodigo(@PathVariable Long codigo) {
     Optional<Pessoa> findById = this.pessoaRepository.findById(codigo);
     return findById.isPresent() ? ResponseEntity.ok(findById.get()) : ResponseEntity.notFound().build();
   }
 
   @PutMapping("/{codigo}")
+  @PreAuthorize("hasAuthority('ROLE_CADASTRA_PESSOA') and #oauth2.hasScope('write')")
   public ResponseEntity<Pessoa> atualiza(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
     Pessoa pessoaSalva = this.pessoaService.atualiza(codigo, pessoa);
     return ResponseEntity.ok(pessoaSalva);
   }
 
   @PutMapping("/{codigo}/ativo")
+  @PreAuthorize("hasAuthority('ROLE_CADASTRA_PESSOA') and #oauth2.hasScope('write')")
   public void atualizaPropriedadeAtivo(@PathVariable Long codigo, @RequestBody Boolean ativo) {
     this.pessoaService.atualizaPropriedadeAtivo(codigo, ativo);
   }
 
   @DeleteMapping("/{codigo}")
+  @PreAuthorize("hasAuthority('ROLE_REMOVER_PESSOA') and #oauth2.hasScope('write')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void remove(@PathVariable Long codigo) {
     this.pessoaRepository.deleteById(codigo);

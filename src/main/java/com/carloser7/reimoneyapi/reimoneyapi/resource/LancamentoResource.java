@@ -12,6 +12,7 @@ import com.carloser7.reimoneyapi.reimoneyapi.exceptionhandler.ReimoneyExceptionH
 import com.carloser7.reimoneyapi.reimoneyapi.model.Lancamento;
 import com.carloser7.reimoneyapi.reimoneyapi.repository.LancamentoRepository;
 import com.carloser7.reimoneyapi.reimoneyapi.repository.filter.LancamentoFilter;
+import com.carloser7.reimoneyapi.reimoneyapi.repository.projection.ResumoLancamento;
 import com.carloser7.reimoneyapi.reimoneyapi.service.LancamentoService;
 import com.carloser7.reimoneyapi.reimoneyapi.service.exception.PessoaInexistenteOuInativaException;
 
@@ -69,6 +70,12 @@ public class LancamentoResource {
   @PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
   public Page<Lancamento> pesquisa(LancamentoFilter lancamentoFilter, Pageable pageable) {
     return this.lancamentoRepository.filtrar(lancamentoFilter, pageable);
+  }
+
+  @GetMapping(params = "resumo")
+  @PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
+  public Page<ResumoLancamento> resumir(LancamentoFilter lancamentoFilter, Pageable pageable) {
+    return this.lancamentoRepository.resumir(lancamentoFilter, pageable);
   }
 
   @GetMapping("/{codigo}")
